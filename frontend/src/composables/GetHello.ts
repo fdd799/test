@@ -1,7 +1,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-export interface HelloResponseDto {
+interface HelloResponseDto {
     message: string
 }
 

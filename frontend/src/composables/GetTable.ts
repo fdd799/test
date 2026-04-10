@@ -1,7 +1,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-export interface TableResponseDto {
+interface TableResponseDto {
     pid: number
     name: string
     type: string
