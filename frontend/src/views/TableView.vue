@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { ref, onMounted } from 'vue'
     import axios from 'axios'
+    const apiUrl = import.meta.env.VITE_API_URL
 
     interface TableResponseDto {
         pid: number
@@ -12,7 +13,7 @@
     const tables = ref<TableResponseDto[]>([])
 
     onMounted(async () => {
-        const res = await axios.get('http://localhost:5225/api/table')
+        const res = await axios.get(`${apiUrl}/table`)
         tables.value = res.data
     })
 

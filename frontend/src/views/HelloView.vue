@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { ref, onMounted } from 'vue'
     import axios from 'axios'
+    const apiUrl = import.meta.env.VITE_API_URL
 
     interface HelloResponseDto {
         message: string
@@ -10,7 +11,7 @@
     })
 
     onMounted(async () => {
-        const res = await axios.get('http://localhost:5225/api/hello')
+        const res = await axios.get(`${apiUrl}/hello`)
         helloResponse.value = res.data
     })
 
