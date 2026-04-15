@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import DataTable from '@/components/DataTable.vue'
-    import { useGetTables } from '@/composables/getTable'
+    import { useGetTables } from '@/composables/GetTable'
     const { datas } = useGetTables()
 
     interface Columns {

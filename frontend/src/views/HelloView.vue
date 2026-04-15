@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { useGetHello } from '@/composables/getHello'
+    import { useGetHello } from '@/composables/GetHello'
     const { helloResponse } = useGetHello()
 </script>
 
