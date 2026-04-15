@@ -1,5 +1,6 @@
 namespace backend.Services;
 
+using AutoMapper;
 using backend.Interfaces;
 using backend.DTOS.Users;
 using System.Linq;
@@ -9,79 +10,55 @@ using backend.Exceptions;
 
 public class UsersService : IUsersService
 {
+    private readonly IMapper _mapper;
     private readonly AppDbContext _context;
 
-    public UsersService(AppDbContext context)
+    public UsersService(IMapper mapper, AppDbContext context)
     {
+        _mapper = mapper;
         _context = context;
     }
 
     public List<UsersResponseDto> GetUsers()
     {
-        return _context.Users.Select(user => new UsersResponseDto{
-            Id = user.Id,
-            Name = user.Name,
-            Email = user.Email
-        }).ToList();
+        List<UsersEntity> users = _context.Users.ToList();
+
+        return _mapper.Map<List<UsersResponseDto>>(users);
     }
 
     public UsersResponseDto GetUserById(int id)
     {
-        var user = _context.Users.Where(user => user.Id == id)
-                            .Select(user => new UsersResponseDto{
-                                Id = user.Id,
-                                Name = user.Name,
-                                Email = user.Email
-                            })
-                            .FirstOrDefault();
+        UsersEntity? user = _context.Users.FirstOrDefault(user => user.Id == id);
         
-        return user ?? throw new NotFoundException();
+        return _mapper.Map<UsersResponseDto>(user ?? throw new NotFoundException());
     }
 
     public UsersResponseDto CreateUser(CreateUserDto user)
     {
-        var newUser = new UsersEntity{
-            Name = user.Name,
-            Email = user.Email
-        };
+        UsersEntity newUser = _mapper.Map<UsersEntity>(user);
 
         _context.Users.Add(newUser);
         _context.SaveChanges();
 
-        return new UsersResponseDto{
-            Id = newUser.Id,
-            Name = newUser.Name,
-            Email = newUser.Email
-        };
+        return _mapper.Map<UsersResponseDto>(newUser);
     }
 
     public UsersResponseDto UpdateUser(int id, UsersResponseDto user)
     {
-        var updatedUser = _context.Users.FirstOrDefault(user => user.Id == id);
+        UsersEntity? updatedUser = _context.Users.FirstOrDefault(user => user.Id == id) ?? throw new NotFoundException();
 
-        if(updatedUser == null)
-            throw new NotFoundException();
-
-        updatedUser.Name = user.Name;
-        updatedUser.Email = user.Email;
+        _mapper.Map(user, updatedUser);
 
         _context.SaveChanges();
-        
-        return new UsersResponseDto{
-            Id = updatedUser.Id,
-            Name = updatedUser.Name,
-            Email = updatedUser.Email
-        };
+
+        return _mapper.Map<UsersResponseDto>(updatedUser);
     }
 
     public void DeleteUser(int id)
     {
-        var deleteUser = _context.Users.FirstOrDefault(user => user.Id == id);
+        UsersEntity? deleteUser = _context.Users.FirstOrDefault(user => user.Id == id);
 
-        if(deleteUser == null)
-            throw new NotFoundException();
-
-        _context.Users.Remove(deleteUser);
+        _context.Users.Remove(deleteUser ?? throw new NotFoundException());
         _context.SaveChanges();
     }
 }

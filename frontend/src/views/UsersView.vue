@@ -19,6 +19,14 @@
         { key: 'email', title: 'Email' }
     ]
 
+    class CreateUser{
+        constructor(public name: string, public email: string) {}
+    }
+
+    class UpdateUser{
+        constructor(public id: number, public name: string, public email: string) {}
+    }
+
     const userId = ref(1)
     const name = ref('')
     const email = ref('')
@@ -42,12 +50,12 @@
     }
 
     const handleCreateUser = async () => {
-        await createUser({ name: name.value, email: email.value })
+        await createUser(new CreateUser(name.value, email.value))
         activeView.value = 'createUser'
     }
 
     const handleUpdateUser = async () => {
-        await updateUser({ id: userId.value, name: name.value, email: email.value })
+        await updateUser(new UpdateUser(userId.value, name.value, email.value))
         activeView.value = 'updateUser'
     }
 

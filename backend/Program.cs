@@ -15,6 +15,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
+builder.Services.AddAutoMapper(cfg => { }, typeof(Program));
+
 builder.Services.AddControllers();
 builder.Services.AddScoped<IHelloService, HelloService>();
 builder.Services.AddScoped<ITableService, TableService>();
@@ -31,10 +33,10 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.InvalidModelStateResponseFactory = context =>
     {
         var errors = context.ModelState
-            .Where(x => x.Value.Errors.Count > 0)
+            .Where(x => x.Value != null && x.Value.Errors.Count > 0)
             .ToDictionary(
                 x => x.Key,
-                x => x.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                x => x.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
             );
 
         var response = new
