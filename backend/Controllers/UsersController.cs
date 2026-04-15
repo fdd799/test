@@ -32,7 +32,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateUser(UsersResponseDto user)
+    public IActionResult CreateUser(CreateUserDto user)
     {
         UsersResponseDto newUser = _usersService.CreateUser(user);
 

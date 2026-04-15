@@ -2,6 +2,8 @@ using backend.Interfaces;
 using backend.Services;
 using Microsoft.EntityFrameworkCore;
 using backend.Middlewares;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,27 @@ builder.Services.AddCors(options => {
     options.AddPolicy("vue", policy => {
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(x => x.Value.Errors.Count > 0)
+            .ToDictionary(
+                x => x.Key,
+                x => x.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+            );
+
+        var response = new
+        {
+            message = "Validation failed",
+            errors = errors
+        };
+
+        return new BadRequestObjectResult(response);
+    };
 });
 
 var app = builder.Build();

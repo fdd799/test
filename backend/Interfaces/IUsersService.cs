@@ -8,7 +8,7 @@ public interface IUsersService
 
     UsersResponseDto GetUserById(int id);
 
-    UsersResponseDto CreateUser(UsersResponseDto user);
+    UsersResponseDto CreateUser(CreateUserDto user);
 
     UsersResponseDto UpdateUser(int id, UsersResponseDto user);
 

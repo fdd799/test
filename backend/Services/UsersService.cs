@@ -38,7 +38,7 @@ public class UsersService : IUsersService
         return user ?? throw new NotFoundException();
     }
 
-    public UsersResponseDto CreateUser(UsersResponseDto user)
+    public UsersResponseDto CreateUser(CreateUserDto user)
     {
         var newUser = new UsersEntity{
             Name = user.Name,
