@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import axios from 'axios'
+import { apiUrl } from '../ApiUrl'
 
 interface UsersResponseDto {
     id: number
@@ -8,14 +9,19 @@ interface UsersResponseDto {
 }
 
 export const useGetUsers = () => {
-    const apiUrl = import.meta.env.VITE_API_URL
-
     const users = ref<UsersResponseDto[]>([]);
 
     const getUsers = async () => {
         const res = await axios.get(`${apiUrl}/users`)
+            .then(res => {
+                users.value = res.data
+                return users.value
+            })
+            .catch(err => {
+                return []
+            })
 
-        users.value = res.data
+        users.value = res ?? []
     }
 
     return { users, getUsers }

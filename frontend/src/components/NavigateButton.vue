@@ -16,5 +16,5 @@
 </script>
 
 <template>
-    <button class="m-2 bg-blue-700 text-white px-4 py-2 rounded-md" @click="navigateTo(props.path)">{{ props.text }}</button>
+    <button class="m-2 bg-blue-700 text-white px-4 py-2 rounded-md cursor-pointer" @click="navigateTo(props.path)">{{ props.text }}</button>
 </template>

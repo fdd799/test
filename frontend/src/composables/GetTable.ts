@@ -1,5 +1,6 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { apiUrl } from './ApiUrl'
 
 interface TableResponseDto {
     pid: number
@@ -9,8 +10,6 @@ interface TableResponseDto {
 }
 
 export const useGetTables = () => {
-    const apiUrl = import.meta.env.VITE_API_URL
-
     const datas = ref<TableResponseDto[]>([])
 
     const getTables = async () => {

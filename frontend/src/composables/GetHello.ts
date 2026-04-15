@@ -1,13 +1,12 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { apiUrl } from './ApiUrl'
 
 interface HelloResponseDto {
     message: string
 }
 
 export const useGetHello = () => {
-    const apiUrl = import.meta.env.VITE_API_URL
-
     const helloResponse = ref<HelloResponseDto>({
         message: ''
     })
