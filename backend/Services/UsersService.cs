@@ -4,19 +4,21 @@ using AutoMapper;
 using backend.Interfaces;
 using backend.DTOS.Users;
 using System.Linq;
-using System.Threading.Tasks;
 using backend.Entities;
 using backend.Exceptions;
+using Microsoft.Extensions.Logging;
 
 public class UsersService : IUsersService
 {
     private readonly IMapper _mapper;
     private readonly AppDbContext _context;
+    private readonly ILogger<UsersService> _logger;
 
-    public UsersService(IMapper mapper, AppDbContext context)
+    public UsersService(IMapper mapper, AppDbContext context, ILogger<UsersService> logger)
     {
         _mapper = mapper;
         _context = context;
+        _logger = logger;
     }
 
     public List<UsersResponseDto> GetUsers()
@@ -35,30 +37,71 @@ public class UsersService : IUsersService
 
     public UsersResponseDto CreateUser(CreateUserDto user)
     {
-        UsersEntity newUser = _mapper.Map<UsersEntity>(user);
+        using var transaction = _context.Database.BeginTransaction();
 
-        _context.Users.Add(newUser);
-        _context.SaveChanges();
+        try {
+            UsersEntity newUser = _mapper.Map<UsersEntity>(user);
 
-        return _mapper.Map<UsersResponseDto>(newUser);
+            _context.Users.Add(newUser);
+            _context.SaveChanges();
+
+            transaction.Commit();
+
+            return _mapper.Map<UsersResponseDto>(newUser);
+        }
+        catch (Exception ex) {
+            transaction.Rollback();
+
+            _logger.LogError(ex, "CreateUser failed. Input: {@User}", user);
+
+            throw new Exception(ex.Message);
+        }
     }
 
     public UsersResponseDto UpdateUser(int id, UsersResponseDto user)
     {
-        UsersEntity? updatedUser = _context.Users.FirstOrDefault(user => user.Id == id) ?? throw new NotFoundException();
+        using var transaction = _context.Database.BeginTransaction();
 
-        _mapper.Map(user, updatedUser);
+        try {
 
-        _context.SaveChanges();
+            UsersEntity? updatedUser = _context.Users.FirstOrDefault(user => user.Id == id) ?? throw new NotFoundException();
 
-        return _mapper.Map<UsersResponseDto>(updatedUser);
+            _mapper.Map(user, updatedUser);
+
+            _context.SaveChanges();
+
+            transaction.Commit();
+
+            return _mapper.Map<UsersResponseDto>(updatedUser);
+        }
+        catch (Exception ex) {
+            transaction.Rollback();
+
+            _logger.LogError(ex, "UpdateUser failed. Input: {@User}", user);
+
+            throw new Exception(ex.Message);
+        }
     }
 
     public void DeleteUser(int id)
     {
-        UsersEntity? deleteUser = _context.Users.FirstOrDefault(user => user.Id == id);
+        using var transaction = _context.Database.BeginTransaction();
 
-        _context.Users.Remove(deleteUser ?? throw new NotFoundException());
-        _context.SaveChanges();
+        try {
+
+            UsersEntity? deleteUser = _context.Users.FirstOrDefault(user => user.Id == id);
+
+            _context.Users.Remove(deleteUser ?? throw new NotFoundException());
+            _context.SaveChanges();
+
+            transaction.Commit();
+        }
+        catch (Exception ex) {
+            transaction.Rollback();
+
+            _logger.LogError(ex, "DeleteUser failed. Input: {@User}", id);
+
+            throw new Exception(ex.Message);
+        }
     }
 }
