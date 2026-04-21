@@ -6,19 +6,16 @@ using backend.DTOS.Users;
 using System.Linq;
 using backend.Entities;
 using backend.Exceptions;
-using Microsoft.Extensions.Logging;
 
 public class UsersService : IUsersService
 {
     private readonly IMapper _mapper;
     private readonly AppDbContext _context;
-    private readonly ILogger<UsersService> _logger;
 
-    public UsersService(IMapper mapper, AppDbContext context, ILogger<UsersService> logger)
+    public UsersService(IMapper mapper, AppDbContext context)
     {
         _mapper = mapper;
         _context = context;
-        _logger = logger;
     }
 
     public List<UsersResponseDto> GetUsers()
@@ -31,7 +28,7 @@ public class UsersService : IUsersService
     public UsersResponseDto GetUserById(int id)
     {
         UsersEntity? user = _context.Users.FirstOrDefault(user => user.Id == id);
-        
+
         return _mapper.Map<UsersResponseDto>(user ?? throw new NotFoundException());
     }
 
@@ -51,10 +48,7 @@ public class UsersService : IUsersService
         }
         catch (Exception ex) {
             transaction.Rollback();
-
-            _logger.LogError(ex, "CreateUser failed. Input: {@User}", user);
-
-            throw new Exception(ex.Message);
+            throw new DatabaseException(user, ex);
         }
     }
 
@@ -76,10 +70,7 @@ public class UsersService : IUsersService
         }
         catch (Exception ex) {
             transaction.Rollback();
-
-            _logger.LogError(ex, "UpdateUser failed. Input: {@User}", user);
-
-            throw new Exception(ex.Message);
+            throw new DatabaseException(user, ex);
         }
     }
 
@@ -98,10 +89,7 @@ public class UsersService : IUsersService
         }
         catch (Exception ex) {
             transaction.Rollback();
-
-            _logger.LogError(ex, "DeleteUser failed. Input: {@User}", id);
-
-            throw new Exception(ex.Message);
+            throw new DatabaseException(id, ex);
         }
     }
 }
